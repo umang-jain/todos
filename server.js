@@ -1,0 +1,10 @@
+var express=require('express');
+var app=express;
+var port=process.env.PORT||3000;
+
+app.get('/',function(req,res){
+	res.send('todo api root');
+})
+app.listen(PORT,function(){
+	console.log('express listening on port '+PORT+'!');
+})
