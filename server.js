@@ -24,10 +24,8 @@ app.get('/todos',function(req,res){
 });
 
 app.get('/todos/:id',function(req,res){
-	var todoId = req.params.id;
+	var todoId = parseInt(req.params.id,10);
 	var matchedTodo;
-	res.send('asking for todo with id of'+ req.params.id);
-
 	todos.forEach(function(todo){
 		if(todoId===todo.id)
 			matchedTodo=todo;
@@ -39,7 +37,6 @@ app.get('/todos/:id',function(req,res){
 	else{
 		res.status(404).send();
 	}
-
 });
 
 
