@@ -23,11 +23,10 @@ sequelize.sync({
 }).then(function() {
 	console.log('everything is synced');
 
-	Todo.findById(2).then(function(todo){
-		if(todo){
+	Todo.findById(2).then(function(todo) {
+		if (todo) {
 			console.log(todo.toJSON());
-		}
-		else{
+		} else {
 			console.log('not found');
 		}
 	});
