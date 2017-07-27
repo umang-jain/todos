@@ -14,31 +14,58 @@ app.get('/', function(req, res) {
 });
 
 app.get('/todos', function(req, res) {
-	var queryParams = req.query; //query is given by ?
-	var filteredTodos = todos;
+	var query = req.query; //query is given by ?
+	// var filteredTodos = todos;
 
-	if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') { //cheaking condition
-		filteredTodos = _.where(filteredTodos, { //searching condition
-			"completed": true //giving condition
-		});
-	} else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
-		filteredTodos = _.where(filteredTodos, {
-			"completed": false
-		});
+	// if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'true') { //cheaking condition
+	// 	filteredTodos = _.where(filteredTodos, { //searching condition
+	// 		"completed": true //giving condition
+	// 	});
+	// } else if (queryParams.hasOwnProperty('completed') && queryParams.completed === 'false') {
+	// 	filteredTodos = _.where(filteredTodos, {
+	// 		"completed": false
+	// 	});
+	// }
+	// //filteredtodos is here -> create propety by by ||?q=dog||
+	// if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
+	// 	filteredTodos = _.filter(filteredTodos, function(todo) {
+	// 		return todo.description.indexOf(queryParams.q) > -1;
+	// 	});
+	// }
+	// res.json(filteredTodos);
+
+	var where = {};
+	if(query.hasOwnProperty('completed')&& query.completed==='true'){
+		where.completed = true;
+	}else if(query.hasOwnProperty('completed')&& query.completed==='false'){
+		where.completed = false;
 	}
-	//filteredtodos is here -> create propety by by ||?q=dog||
-	if (queryParams.hasOwnProperty('q') && queryParams.q.length > 0) {
-		filteredTodos = _.filter(filteredTodos, function(todo) {
-			return todo.description.indexOf(queryParams.q) > -1;
-		});
+
+	if(query.hasOwnProperty('q')&&query.q.length>0){
+		where.description={
+			$like: '%'+ query.q +'%'
+		};
 	}
-	res.json(filteredTodos);
+	db.todo.findAll({where:where}).then(function(todos){
+		res.json(todos);
+	},function(e){
+		res.status(500).send();
+	});
+
 });
 
 app.get('/todos/:id', function(req, res) {
 
 	var todoId = parseInt(req.params.id, 10); //parseInt-> string to int req.params.id->:id id dalne ke liye
-	
+	// var matchedTodo = _.findWhere(todos, {
+	// 	id: todoId
+	// }); //findwhere-> todos 
+
+	// if (matchedTodo) {
+	// 	res.json(matchedTodo);
+	// } else {
+	// 	res.status(404).send();
+	// }
 
 	db.todo.findById(todoId).then(function(todo){
 		if(!!todo){
