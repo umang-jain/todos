@@ -6,6 +6,7 @@ var todoNextId = 1;
 var bodyParser = require('body-parser');
 var _ = require('underscore');
 var db = require('./db.js');
+var bcrypt = require('bcrypt');
 
 app.use(bodyParser.json());
 
@@ -119,8 +120,8 @@ app.delete('/todos/:id', function(req, res) { //delete is http method
 		} else {
 			res.status(204).send();
 		}
-	},	function() {
-			res.status(500).send();
+	}, function() {
+		res.status(500).send();
 	});
 });
 
@@ -143,31 +144,58 @@ app.put('/todos/:id', function(req, res) {
 	if (body.hasOwnProperty('description')) {
 		Attributes.description = body.description;
 	}
-	db.todo.findById(todoId).then(function(todo){
-		if(todo){
-				return todo.update(Attributes);
-		}else{
-			res.status(404).send(); 
+	db.todo.findById(todoId).then(function(todo) {
+		if (todo) {
+			return todo.update(Attributes);
+		} else {
+			res.status(404).send();
 		}
-	},function(){
+	}, function() {
 		res.status(500).send();
-	}).then(function(todo){
-			res.json(todo.toJSON());
-	},function(e){
+	}).then(function(todo) {
+		res.json(todo.toJSON());
+	}, function(e) {
 		res.status(400).json(e);
 	});
 });
 //new post request
-app.post('/users',function(req,res){
+app.post('/users', function(req, res) {
 	var body = _.pick(req.body, 'email', 'password');
-	db.user.create(body).then(function(user){
+	db.user.create(body).then(function(user) {
 		res.json(user.toPublicJSON());
-	},function(e){
+	}, function(e) {
 		res.status(400).json(e);
 	});
-});	
+});
 
-db.sequelize.sync().then(function() {//force to resattle the database
+//post  /users/login
+app.post('/users/login', function(req, res) {
+	var body = _.pick(req.body, 'email', 'password');
+	db.user.authenticate(body).then(function(user) {
+		res.json(user.toPublicJSON());
+	}, function() {
+		res.status(401).send();
+	});
+	// if (!_.isString(body.email) && !_.isString(body.password)) {
+	// 	return res.status(400).send();
+	// }
+
+	// db.user.findOne({
+	// 	where: {
+	// 		email: body.email
+	// 	}
+	// }).then(function(user) {
+	// 	if (!user || !bcrypt.compareSync(body.password, user.get('password_hash'))) {
+	// 		return res.status(401).send();
+	// 	}
+	// 	res.json(user.toPublicJSON());
+	// }, function(e) {
+	// 	res.status(500).send();
+	// })
+
+});
+
+db.sequelize.sync().then(function() { //force to resattle the database
 	app.listen(PORT, function() {
 		console.log('express listening on port ' + PORT + ' !');
 	});
